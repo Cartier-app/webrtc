@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRTC Video Call - Supabase</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+  <div class="animated-bg"></div>
+  
+  <div class="container">
+    <header>
+      <h1>🎥 Live Video & Voice Call</h1>
+      <p class="subtitle">WebRTC + Realtime Signaling</p>
+    </header>
+
+    <div id="setupScreen" class="screen active">
+      <div class="card">
+        <h2>Join or Create a Room</h2>
+        
+        <div class="input-group">
+          <label for="username">Your Name</label>
+          <input type="text" id="username" placeholder="Enter your name" required>
+        </div>
+
+        <div class="input-group">
+          <label for="roomCode">Room Code</label>
+          <input type="text" id="roomCode" placeholder="Enter room code or leave empty to create" maxlength="10">
+        </div>
+
+        <div class="media-options">
+          <label class="checkbox-label">
+            <input type="checkbox" id="enableVideo" checked>
+            <span>Enable Video</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="enableAudio" checked>
+            <span>Enable Audio</span>
+          </label>
+        </div>
+
+        <div class="button-group">
+          <button id="createRoomBtn" class="btn btn-primary">Create New Room</button>
+          <button id="joinRoomBtn" class="btn btn-secondary">Join Room</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="callScreen" class="screen">
+      <div class="call-header">
+        <div class="room-info">
+          <span class="room-label">Room:</span>
+          <span id="currentRoomCode" class="room-code"></span>
+          <button id="copyRoomBtn" class="btn-icon" title="Copy room code">📋</button>
+        </div>
+        <div class="participant-count">
+          <span id="participantCount">0</span> <span class="count-label">Participants</span>
+        </div>
+        <button id="leaveRoomBtn" class="btn btn-danger">Leave Room</button>
+      </div>
+
+      <div class="video-grid" id="videoGrid">
+        <div class="video-container local-video">
+          <video id="localVideo" autoplay muted playsinline></video>
+          <div class="video-label">You</div>
+          <div class="video-controls">
+            <button id="toggleVideoBtn" class="control-btn active" title="Toggle video">
+              <span class="icon-on">📹</span>
+              <span class="icon-off">📹</span>
+            </button>
+            <button id="toggleAudioBtn" class="control-btn active" title="Toggle audio">
+              <span class="icon-on">🎤</span>
+              <span class="icon-off">🎤</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="connection-health-panel">
+        <h3>📡 Connection Health Monitor</h3>
+        <div id="connectionHealthList" class="health-list">
+          <div class="health-placeholder">Connection quality will appear here once participants join...</div>
+        </div>
+      </div>
+
+      <div class="participants-panel">
+        <h3>Participants</h3>
+        <div id="participantsList"></div>
+      </div>
+    </div>
+
+    <div id="errorScreen" class="screen">
+      <div class="card error-card">
+        <h2>⚠️ Error</h2>
+        <p id="errorMessage"></p>
+        <button id="retryBtn" class="btn btn-primary">Back to Home</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="statusIndicator" class="status-indicator"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

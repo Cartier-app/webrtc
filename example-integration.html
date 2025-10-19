@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CallConnect Integration Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .integration-container {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #333;
+    }
+    
+    .btn-secondary:hover {
+      background: #cbd5e0;
+    }
+    
+    input {
+      padding: 10px 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .mode-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .mode-btn {
+      padding: 10px 20px;
+      border: 2px solid #e2e8f0;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .mode-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: #667eea;
+    }
+    
+    .info-box {
+      background: #f0f9ff;
+      border: 2px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .info-box h3 {
+      margin-top: 0;
+      color: #1e40af;
+    }
+    
+    .code-snippet {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 10px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎥 CallConnect Integration Example</h1>
+    <p>See how easy it is to add video/audio calling to your website</p>
+  </div>
+
+  <div class="integration-container">
+    <h2>Choose Your Integration Mode</h2>
+    <div class="mode-selector">
+      <button class="mode-btn active" onclick="setMode('both')">🎬 Video + Audio</button>
+      <button class="mode-btn" onclick="setMode('video')">📹 Video Only</button>
+      <button class="mode-btn" onclick="setMode('audio')">🎤 Audio Only</button>
+    </div>
+
+    <div class="info-box">
+      <h3>Current Mode: <span id="currentMode">Video + Audio</span></h3>
+      <p>Try the controls below to interact with the embedded widget!</p>
+    </div>
+
+    <div class="controls">
+      <input type="text" id="usernameInput" placeholder="Your Name" value="Demo User">
+      <input type="text" id="roomCodeInput" placeholder="Room Code (optional)">
+      <button class="btn btn-primary" onclick="createRoom()">Create Room</button>
+      <button class="btn btn-primary" onclick="joinRoom()">Join Room</button>
+      <button class="btn btn-secondary" onclick="toggleVideo()">Toggle Video</button>
+      <button class="btn btn-secondary" onclick="toggleAudio()">Toggle Audio</button>
+      <button class="btn btn-secondary" onclick="leaveRoom()">Leave Room</button>
+    </div>
+  </div>
+
+  <div class="integration-container">
+    <h2>Live Widget Preview</h2>
+    <div id="callconnect-container"></div>
+  </div>
+
+  <div class="integration-container">
+    <h2>📋 Integration Code</h2>
+    <p>Copy this code to add CallConnect to your own website:</p>
+    
+    <h3>Step 1: Include the SDK</h3>
+    <div class="code-snippet">
+&lt;script src="https://cartier-app.github.io/webrtc/embed.js"&gt;&lt;/script&gt;
+    </div>
+
+    <h3>Step 2: Add Container</h3>
+    <div class="code-snippet">
+&lt;div id="callconnect-container"&gt;&lt;/div&gt;
+    </div>
+
+    <h3>Step 3: Initialize</h3>
+    <div class="code-snippet" id="codeDisplay"></div>
+  </div>
+
+  <script src="https://cartier-app.github.io/webrtc/embed.js"></script>
+  <script>
+    let callConnect;
+    let currentIntegrationMode = 'both';
+
+    function initializeWidget(mode) {
+      if (callConnect) {
+        callConnect.destroy();
+      }
+
+      callConnect = new CallConnectEmbed({
+        containerId: 'callconnect-container',
+        mode: mode,
+        width: '100%',
+        height: '600px',
+        username: document.getElementById('usernameInput').value || 'Demo User',
+        position: 'inline',
+        onReady: function(data) {
+          console.log('CallConnect Ready:', data);
+        },
+        onJoin: function(data) {
+          console.log('Joined Room:', data);
+          alert(`Joined room: ${data.roomCode}`);
+        },
+        onLeave: function(data) {
+          console.log('Left Room:', data);
+        },
+        onError: function(error) {
+          console.error('CallConnect Error:', error);
+        }
+      });
+
+      callConnect.init();
+      updateCodeDisplay(mode);
+    }
+
+    function setMode(mode) {
+      currentIntegrationMode = mode;
+      
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      const modeNames = {
+        'both': 'Video + Audio',
+        'video': 'Video Only',
+        'audio': 'Audio Only'
+      };
+      document.getElementById('currentMode').textContent = modeNames[mode];
+
+      initializeWidget(mode);
+    }
+
+    function updateCodeDisplay(mode) {
+      const code = `&lt;script&gt;
+  const callConnect = new CallConnectEmbed({
+    containerId: 'callconnect-container',
+    mode: '${mode}',
+    width: '100%',
+    height: '600px',
+    username: 'Your Name',
+    onReady: function() {
+      console.log('Ready!');
+    },
+    onJoin: function(data) {
+      console.log('Joined:', data.roomCode);
+    }
+  });
+  
+  callConnect.init();
+&lt;/script&gt;`;
+
+      document.getElementById('codeDisplay').innerHTML = code;
+    }
+
+    function createRoom() {
+      const username = document.getElementById('usernameInput').value;
+      callConnect.createRoom(username);
+    }
+
+    function joinRoom() {
+      const username = document.getElementById('usernameInput').value;
+      const roomCode = document.getElementById('roomCodeInput').value;
+      
+      if (!roomCode) {
+        alert('Please enter a room code');
+        return;
+      }
+      
+      callConnect.joinRoom(roomCode, username);
+    }
+
+    function leaveRoom() {
+      callConnect.leaveRoom();
+    }
+
+    function toggleVideo() {
+      const enabled = confirm('Enable video?');
+      callConnect.toggleVideo(enabled);
+    }
+
+    function toggleAudio() {
+      const enabled = confirm('Enable audio?');
+      callConnect.toggleAudio(enabled);
+    }
+
+    initializeWidget('both');
+  </script>
+</body>
+</html>
